@@ -1,0 +1,13 @@
+$navbg: #000;
+$fontColor: #fff;
+$fontFamily: 'microsoft yahei';
+$imgUrl: 'http://119.23.75.125:8089/images/';
+
+@mixin common(){
+    color: $fontColor;
+    font-family: $fontFamily;
+}
+@mixin bgImg($n){
+    background: url($imgUrl+$n) no-repeat center center;
+    background-size: cover;
+}
