@@ -145,11 +145,11 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="project-table" v-show="isActive === 1">
+                <div class="project-table" v-show="isActive === 1">
                     <el-table :data="projects">
                         <el-table-column label="" width="100">
                             <template slot-scope="scope">
-                                <i class="icon iconfont icon-star" :class="scope.row.status === 'new' ? '': 'icon-star-active' "></i>
+                                <i class="icon iconfont icon-star" :class="scope.row.state == '0' ? '': 'icon-star-active' "></i>
                                 <div class="project-type-icon">
                                     <i class="icon iconfont icon-survey"></i>
                                 </div>
@@ -163,15 +163,15 @@
                         </el-table-column>
                         <el-table-column label="状态" width="180" sortable>
                             <template slot-scope="scope">
-                                <i class="icon iconfont" :class="scope.row.status === 'new'? 'icon-ring':'icon-circle'"></i>
-                                <span>{{scope.row.status}}</span>
+                                <i class="icon iconfont" :class="scope.row.state == '0'? 'icon-ring':'icon-circle'"></i>
+                                <span>{{scope.row.state == 0 ? '未发布':'已发布'}}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="lastModifed" label="上次修改时间" sortable></el-table-column>
-                        <el-table-column prop="creatData" label="创建时间" sortable></el-table-column>
-                        <el-table-column prop="responses" label="答卷数" sortable></el-table-column>
-                        <el-table-column prop="owner" label="拥有者" sortable></el-table-column>
-                        <el-table-column prop="group" label="组" sortable></el-table-column>
+                        <el-table-column prop="updatedAt" label="上次修改时间" sortable></el-table-column>
+                        <el-table-column prop="createdAt" label="创建时间" sortable></el-table-column>
+                        <el-table-column prop="id" label="答卷数" sortable></el-table-column>
+                        <el-table-column prop="createdBy" label="创建人" sortable></el-table-column>
+                        <el-table-column prop="name" label="组" sortable></el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="scope">
                                 <el-popover ref="popover2" popper-class="my-popover action-popover" placement="left" width="170" trigger="click">
@@ -216,7 +216,7 @@
                         <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
                         </el-pagination>
                     </div>
-                </div> -->
+                </div>
             </div>
         </div>
         <div v-else class="none-container">
