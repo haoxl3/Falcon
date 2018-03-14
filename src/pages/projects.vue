@@ -398,21 +398,7 @@ export default {
       delProDialog: false, //删除项目弹出框
       copyProDialog: false, //复制项目弹出框
       proStatus: 1, //
-      projects: [
-            {
-                id: 1,
-                name: "2017DS售后客户满意度调研",
-                status: "new",
-                lastModifed: "2017-06-01",
-                creatData: "2017-05-25",
-                responses: "2",
-                owner: "haoxl",
-                group: "haoxl",
-                responseTime: 3,
-                languages: "0",
-                questions: []
-            }
-      ], 
+      projects: [], 
       cur_page: 1, //分页初始值
       titleChange: false, //是否修改项目名
       formThead: [],
@@ -447,9 +433,7 @@ export default {
     },
     //获取项目并赋给表格展示
     _searchSurvey() {
-        let self = this;
         this.$axios.post('survey/search').then((res) => {
-            console.log(res)
             if(res.data.code == 'ok') {
                 this.projects = res.data.results;
             }
@@ -476,22 +460,20 @@ export default {
     },
     //创建一个项目
     createPro(proName) {
-      this.projects.push({
-        id: ++this.pid,
-        name: proName,
-        status: 'new',
-        lastModifed: '2017-06-01',
-        creatData: new Date(),
-        responses: '2',
-        owner: 'haoxl',
-        group: 'haoxl',
-        questions: [],
-        responseTime: 0,
-        languages: '0'
-      })
-      utils.setStorage('projects', this.projects)
-      this.dialogVisible = false
-      // TODO 添加创建项目API
+        this.dialogVisible = false
+        // TODO 添加创建项目API
+        let temp = {
+            id: -1,
+            name: this.proName || '新问卷',
+            description: '新问卷',
+            welcomeUrl: '',
+            closingUrl: ''
+        };
+        this.$axios.post('survey/create', temp).then((res) => {
+            if(res.data.code == 'ok') {
+                this.projects.unshift(res.data.results[0])
+            }
+        })
     },
     //触发删除项目弹出框
     triDelProDialog(id, index) {
@@ -503,7 +485,6 @@ export default {
       for (let i = 0; i, this.projects.length; i++) {
         if (this.projects[i].id == proId) {
           this.projects.splice(i, 1)
-          utils.setStorage('projects', this.projects)
           this.delProDialog = false
           return
         }
