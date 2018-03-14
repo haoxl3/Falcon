@@ -461,7 +461,6 @@ export default {
     //创建一个项目
     createPro(proName) {
         this.dialogVisible = false
-        // TODO 添加创建项目API
         let temp = {
             id: -1,
             name: this.proName || '新问卷',
@@ -482,14 +481,17 @@ export default {
     },
     //删除一个项目
     delProject(proId) {
-      for (let i = 0; i, this.projects.length; i++) {
-        if (this.projects[i].id == proId) {
-          this.projects.splice(i, 1)
-          this.delProDialog = false
-          return
-        }
-      }
-      // TODO添加删除项目API
+        this.$axios.post('survey/delete?id=' + proId, null).then((res) => {
+            if(res.data.code == 'ok') {
+                for (let i = 0; i, this.projects.length; i++) {
+                    if (this.projects[i].id == proId) {
+                        this.projects.splice(i, 1)
+                        this.delProDialog = false
+                        return
+                    }
+                }
+            }
+        })
     }
   },
   components: {}
