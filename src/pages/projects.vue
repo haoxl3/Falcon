@@ -44,7 +44,7 @@
                     <p class="text sort-text">Survey</p>
                     <div class="project-list-item" v-for="(item,index) in projects" :key="index">
                         <div class="project-bar-section project-bar-star project-left">
-                            <i class="icon iconfont icon-star" :class="item.status === 'active' ? 'icon-star-active': '' "></i>
+                            <i class="icon iconfont icon-star" :class="item.state == 0 ? '': 'icon-star-active' "></i>
                         </div>
                         <div class="project-bar-section project-description project-middle" @click="$router.push({name:'editSurvey',params:{id:item.id}})">
                             <div class="middle-box">
@@ -55,43 +55,45 @@
                                     <span class="project-name">{{item.name}}</span>
                                     <el-input v-model="titleValue" class="project-name-input" placeholder="test"></el-input>
                                 </div>
-                                <div class="project-info">上次修改时间：{{item.lastModifed}}</div>
+                                <div class="project-info">上次修改时间：{{item.updatedAt}}</div>
                             </div>
                         </div>
                         <div class="project-right" @click="$router.push({name:'editSurvey',params:{id:index}})">
-                            <div class="widget-container">
-                                <div class="project-status-widget">
-                                    <h3>状态</h3>
-                                    <div class="status" :class="item.status === 'new' ? 'new':'active' ">{{item.status}}</div>
-                                </div>
-                            </div>
-                            <div class="widget-container">
-                                <div class="basic-count-widget">
-                                    <el-tooltip placement="top">
-                                        <div slot="content" class="tooltip-content">此问卷题目的总数</div>
-                                        <h3>题目个数</h3>
-                                    </el-tooltip>
-                                    <span>{{item.questions.length}}</span>
-                                </div>
-                            </div>
-                            <div class="widget-container">
-                                <div class="estimated-response-time-widget">
-                                    <el-tooltip placement="top">
-                                        <div slot="content" class="tooltip-content">答完此问卷预估的时间</div>
-                                        <h3>Est. Response Time</h3>
-                                    </el-tooltip>
-                                    <div class="graph-container">
-                                        <el-progress type="circle" :width="progressWidth" :percentage="item.responseTime"></el-progress>
+                            <div class="project-right-content">
+                                <div class="widget-container">
+                                    <div class="flex-box flex-column">
+                                        <h3>状态</h3>
+                                        <div class="status" :class="item.state == 0 ? 'edit':'published' ">{{item.state == 0 ? '未发布':'已发布'}}</div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="widget-container">
-                                <div class="basic-count-widget">
-                                    <el-tooltip placement="top">
-                                        <div slot="content" class="tooltip-content">问卷已被翻译<br/>的语言的数量</div>
-                                        <h3>语言</h3>
-                                    </el-tooltip>
-                                    <span class="language">{{item.languages}}</span>
+                                <div class="widget-container basic-count-widget">
+                                    <div class="flex-box flex-column">
+                                        <el-tooltip placement="top">
+                                            <div slot="content" class="tooltip-content">此问卷题目的总数</div>
+                                            <h3>题目个数</h3>
+                                        </el-tooltip>
+                                        <span>10</span>
+                                    </div>
+                                </div>
+                                <div class="widget-container">
+                                    <div class="flex-box flex-column">
+                                        <el-tooltip placement="top">
+                                            <div slot="content" class="tooltip-content">答完此问卷预估的时间</div>
+                                            <h3>Est. Response Time</h3>
+                                        </el-tooltip>
+                                        <div class="graph-container">
+                                            <el-progress type="circle" :width="progressWidth" :percentage="item.responseTime"></el-progress>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="widget-container basic-count-widget">
+                                    <div class="flex-box flex-column">
+                                        <el-tooltip placement="top">
+                                            <div slot="content" class="tooltip-content">问卷已被翻译<br/>的语言的数量</div>
+                                            <h3>语言</h3>
+                                        </el-tooltip>
+                                        <span class="language">中文</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -143,7 +145,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="project-table" v-show="isActive === 1">
+                <!-- <div class="project-table" v-show="isActive === 1">
                     <el-table :data="projects">
                         <el-table-column label="" width="100">
                             <template slot-scope="scope">
@@ -214,7 +216,7 @@
                         <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
                         </el-pagination>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
         <div v-else class="none-container">
@@ -410,7 +412,7 @@ export default {
                 languages: "0",
                 questions: []
             }
-      ], //表格展示方式的数据
+      ], 
       cur_page: 1, //分页初始值
       titleChange: false, //是否修改项目名
       formThead: [],
@@ -421,22 +423,15 @@ export default {
       titleValue:'',//项目名称
       sortValue: '',//以..排序
       searchVal: '',//搜索项目
-      progressWidth: 50,//环形进度条宽度
+      progressWidth: 40,//环形进度条宽度
       copyProName: '',//复制项目名称
       copyUsers: '',//复制项目时的用户
       copyFolder: '',//复制项目－文件夹
     }
   },
   created() {
-    this.getData()
+    this._searchSurvey()
   },
-  // mounted() {
-  //     debugger;
-  //     if(utils.getStorage() == null){
-  //         utils.setStorage('projects', this.projects);
-  //     }
-  //     this.projects = utils.getStorage('projects');//获取内存中的所有项目
-  // },
   methods: {
     // 展示list/table
     displayType(index) {
@@ -448,25 +443,17 @@ export default {
     //
     handleCurrentChange(val) {
       this.cur_page = val
-      this.getData()
+      this._searchSurvey()
     },
     //获取项目并赋给表格展示
-    getData() {
-      // let self = this;
-      // self.$axios.post('http://localhost:3000/list',{page:self.cur_page}).then((res) => {
-      //     console.log(res.data.list)
-      //     self.tableData = res.data.list;
-      // })
-      // vue-resouce
-      // this.$http.get('/api/projects').then((response) => {
-      //     response = response.body;
-      //     if(response.errno == ERR_OK){
-      //         this.projects = response.data;
-      //         this.formThead = response.data;
-      //         // 将所有的项目保存到内存中
-      //         utils.setStorage('projects', this.projects);
-      //     }
-      // })
+    _searchSurvey() {
+        let self = this;
+        this.$axios.post('survey/search').then((res) => {
+            console.log(res)
+            if(res.data.code == 'ok') {
+                this.projects = res.data.results;
+            }
+        })
     },
     //触发修改项目名称
     reProName() {
@@ -721,45 +708,36 @@ export default {
         }
 
         .widget-container {
-            display: table-cell;
             width: 145px;
-            height: 76px;
-            padding: 22px 0;
+            height: 100%;
             position: relative;
-            top: -1px;
-            vertical-align: top;
             text-align: center;
-
+            float: left;
             h3 {
                 color: #999;
                 font-weight: 300;
                 white-space: nowrap;
                 position: relative;
-                top: -2px;
                 font-size: 12px;
             }
-
-            .status.new {
+            .status.edit {
                 background: 0 0;
                 border-color: #599d97;
                 color: #599d97;
             }
-
-            .status.active {
+            .status.published {
                 background: #599d97;
                 color: #fff;
             }
-
             .basic-count-widget {
                 span {
                     color: #6699bd;
                     display: block;
                     font-size: 42px;
-                    margin-top: 1px;
                 }
-
                 .language {
                     color: #a5a5a5;
+                    font-size: 16px;
                 }
             }
         }
@@ -807,6 +785,13 @@ export default {
 
     .project-right {
         width: 600px;
+        position: relative;
+        .project-right-content{
+            height: 60px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
     }
 }
 
@@ -982,5 +967,17 @@ export default {
     line-height: 36px;
     color: #aaa;
     margin-bottom: 20px;
+}
+.flex-box{
+    display: flex;
+}
+.flex-column{
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.flex-item{
+    flex: 1;
 }
 </style>
