@@ -471,6 +471,11 @@ export default {
         this.$axios.post('survey/create', temp).then((res) => {
             if(res.data.code == 'ok') {
                 this.projects.unshift(res.data.results[0])
+            }else{
+                this.$notify.error({
+                    title: '错误',
+                    message: '创建项目失败！'
+                });
             }
         })
     },
@@ -487,9 +492,19 @@ export default {
                     if (this.projects[i].id == proId) {
                         this.projects.splice(i, 1)
                         this.delProDialog = false
+                        this.$notify({
+                            title: '成功',
+                            message: '删除成功！',
+                            type: 'success'
+                        });
                         return
                     }
                 }
+            }else{
+                this.$notify.error({
+                    title: '错误',
+                    message: '删除失败！'
+                });
             }
         })
     }
@@ -507,15 +522,12 @@ export default {
     width: 100%;
     padding: 16px 24px 0;
     box-sizing: border-box;
-
     .top-left {
         float: left;
-
         i.icon-open-folder {
             font-size: 20px;
             margin-right: 6px;
         }
-
         span {
             padding: 5px 8px;
             display: inline-block;
@@ -567,12 +579,10 @@ export default {
 .menu {
     padding: 24px 24px 0;
     margin-bottom: 32px;
-
     .title {
         font-size: 19px;
         color: #a5a5a5;
     }
-
     .menu-right {
         float: right;
 
