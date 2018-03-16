@@ -51,9 +51,8 @@
                                 <div class="project-type-icon survey">
                                     <i class="icon iconfont icon-survey"></i>
                                 </div>
-                                <div class="project-name-container">
-                                    <span class="project-name">{{item.name}}</span>
-                                    <el-input v-model="titleValue" class="project-name-input" placeholder="test"></el-input>
+                                <div class="project-name-container" @click.stop>
+                                    <input class="input-base" @focus="reProNameFocus" @blur="reProNameBlur(item, item.name)" @keyup.enter="reProNameKeyDown(item, item.name)" v-model="item.name" placeholder="请输入内容"></input>
                                 </div>
                                 <div class="project-info">上次修改时间：{{item.updatedAt}}</div>
                             </div>
@@ -157,11 +156,11 @@
                         </el-table-column>
                         <el-table-column label="项目名称" sortable>
                             <template slot-scope="scope">
-                                <span v-if="!titleChange">{{scope.row.name}}</span>
-                                <el-input ref="titleInput" v-model="titleValue" v-if="titleChange" :placeholder="scope.row.name" size="small" @blur="onblur(scope.row.name)" @keyup.enter="onsubmit(scope.row.name)"></el-input>
+                                <span>{{scope.row.name}}</span>
+                                <!-- <el-input ref="titleInput" :placeholder="scope.row.name" size="small" @blur="reProNameBlur(scope.row.name)"></el-input> -->
                             </template>
                         </el-table-column>
-                        <el-table-column label="状态" width="180" sortable>
+                        <el-table-column label="状态" width="100" sortable>
                             <template slot-scope="scope">
                                 <i class="icon iconfont" :class="scope.row.state == '0'? 'icon-ring':'icon-circle'"></i>
                                 <span>{{scope.row.state == 0 ? '未发布':'已发布'}}</span>
@@ -172,7 +171,7 @@
                         <el-table-column prop="id" label="答卷数" sortable></el-table-column>
                         <el-table-column prop="createdBy" label="创建人" sortable></el-table-column>
                         <el-table-column prop="name" label="组" sortable></el-table-column>
-                        <el-table-column label="操作">
+                        <el-table-column label="操作" width="60">
                             <template slot-scope="scope">
                                 <el-popover ref="popover2" popper-class="my-popover action-popover" placement="left" width="170" trigger="click">
                                     <ul>
@@ -182,27 +181,34 @@
                                         <li>
                                             <i class="icon iconfont icon-share"></i>分享项目</li>
                                         <li>
-                                            <i class="icon iconfont icon-folder"></i>显示在文件夹</li>
-                                        <li @click="reProName">
-                                            <i class="icon iconfont icon-font"></i>重命名项目</li>
+                                            <i class="icon iconfont icon-folder"></i>显示在文件夹
+                                        </li>
                                         <li @click="copyProDialog=true">
-                                            <i class="icon iconfont icon-iconfontcopy"></i>复制项目</li>
+                                            <i class="icon iconfont icon-iconfontcopy"></i>复制项目
+                                        </li>
                                         <li class="divider"></li>
                                         <li>
-                                            <i class="icon iconfont icon-pen"></i>编辑调研</li>
+                                            <i class="icon iconfont icon-pen"></i>编辑调研
+                                        </li>
                                         <li>
-                                            <i class="icon iconfont icon-preview"></i>预览调研</li>
+                                            <i class="icon iconfont icon-preview"></i>预览调研
+                                        </li>
                                         <li>
-                                            <i class="icon iconfont icon-translate"></i>翻译调研</li>
+                                            <i class="icon iconfont icon-translate"></i>翻译调研
+                                        </li>
                                         <li>
-                                            <i class="icon iconfont icon-plane"></i>发布调研</li>
+                                            <i class="icon iconfont icon-plane"></i>发布调研
+                                        </li>
                                         <li>
-                                            <i class="icon iconfont icon-analysis"></i>数据分析</li>
+                                            <i class="icon iconfont icon-analysis"></i>数据分析
+                                        </li>
                                         <li>
-                                            <i class="icon iconfont icon-report-view"></i>查看报告</li>
+                                            <i class="icon iconfont icon-report-view"></i>查看报告
+                                        </li>
                                         <li class="divider"></li>
                                         <li @click="triDelProDialog(scope.row.id,scope.$index)">
-                                            <i class="icon iconfont icon-delete"></i>删除项目</li>
+                                            <i class="icon iconfont icon-delete"></i>删除项目
+                                        </li>
                                     </ul>
                                 </el-popover>
                                 <span class="icon-arrow-box" v-popover:popover2>
@@ -210,7 +216,6 @@
                                 </span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="" width="50"></el-table-column>
                     </el-table>
                     <div class="pagination">
                         <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
@@ -387,147 +392,156 @@
 </template>
 <script>
 import utils from '@/common/js/utils'
+import editDiv from '@/components/editDiv'
 const ERR_OK = 0
 export default {
-  data() {
-    return {
-      isActive: 0, //
-      liIndex: 0, //项目展示方式
-      dialogVisible: false,
-      actionDialog: false, //action按钮弹出框
-      delProDialog: false, //删除项目弹出框
-      copyProDialog: false, //复制项目弹出框
-      proStatus: 1, //
-      projects: [], 
-      cur_page: 1, //分页初始值
-      titleChange: false, //是否修改项目名
-      formThead: [],
-      curProject: [], //当前项目
-      checked: false, //删除项目前必须选中
-      proName: '', //默认项目名称
-      pid: 1, //项目名称
-      titleValue:'',//项目名称
-      sortValue: '',//以..排序
-      searchVal: '',//搜索项目
-      progressWidth: 40,//环形进度条宽度
-      copyProName: '',//复制项目名称
-      copyUsers: '',//复制项目时的用户
-      copyFolder: '',//复制项目－文件夹
-    }
-  },
-  created() {
-    this._searchSurvey()
-  },
-  methods: {
-    // 展示list/table
-    displayType(index) {
-      this.isActive = index
+    data() {
+        return {
+            isActive: 0, //
+            liIndex: 0, //项目展示方式
+            dialogVisible: false,
+            actionDialog: false, //action按钮弹出框
+            delProDialog: false, //删除项目弹出框
+            copyProDialog: false, //复制项目弹出框
+            proStatus: 1, //
+            projects: [],
+            cur_page: 1, //分页初始值
+            formThead: [],
+            curProject: [], //当前项目
+            checked: false, //删除项目前必须选中
+            proName: '', //默认项目名称
+            pid: 1, //项目名称
+            sortValue: '', //以..排序
+            searchVal: '', //搜索项目
+            progressWidth: 40, //环形进度条宽度
+            copyProName: '', //复制项目名称
+            copyUsers: '', //复制项目时的用户
+            copyFolder: '' //复制项目－文件夹
+        }
     },
-    menuSelect(index) {
-      this.liIndex = index
+    created() {
+        this._searchSurvey()
     },
-    //
-    handleCurrentChange(val) {
-      this.cur_page = val
-      this._searchSurvey()
-    },
-    //获取项目并赋给表格展示
-    _searchSurvey() {
-        this.$axios.post('survey/search').then((res) => {
-            if(res.data.code == 'ok') {
-                this.projects = res.data.results;
+    methods: {
+        // 展示list/table
+        displayType(index) {
+            this.isActive = index
+        },
+        menuSelect(index) {
+            this.liIndex = index
+        },
+        //
+        handleCurrentChange(val) {
+            this.cur_page = val
+            this._searchSurvey()
+        },
+        //获取项目并赋给表格展示
+        _searchSurvey() {
+            this.$axios.post('survey/search').then(res => {
+                if (res.data.code == 'ok') {
+                    this.projects = res.data.results
+                }
+            })
+        },
+        //按回车键后保存项目名修改
+        reProNameKeyDown(pro, proName) {
+            this.reProNameBlur(pro, proName)
+        },
+        //修改项目名的文本框失去焦点时
+        reProNameBlur(pro, proName) {
+            pro.name = proName
+            this.$axios.post('survey/update', pro).then(res => {
+                if (res.data.code == 'ok') {
+                    //
+                } else {
+                    this.$notify.error({
+                        title: '错误',
+                        message: '修改失败！'
+                    })
+                }
+            })
+        },
+        //修改项目名获取焦点时
+        reProNameFocus(e) {
+            e.target.select();
+            e.target.setAttribute('class', e.target.getAttribute('class') + ' focus-class')
+        },
+        //创建一个项目
+        createPro(proName) {
+            this.dialogVisible = false
+            let temp = {
+                id: -1,
+                name: this.proName || '新问卷',
+                description: '新问卷',
+                welcomeUrl: '',
+                closingUrl: ''
             }
-        })
-    },
-    //触发修改项目名称
-    reProName() {
-      this.titleChange = !this.titleChange
-      setTimeout(() => {
-        this.$refs.titleInput.focus()
-      }, 150)
-    },
-    //修改项目名的文本框失去焦点时
-    onblur(proName) {
-      this.titleValue = this.titleValue.trim()
-      proName = this.titleValue === '' ? proName : this.titleValue
-      this.titleChange = false
-    },
-    //修改项目名的文本框内容自动提交
-    onsubmit(proName) {
-      this.titleValue = this.titleValue.trim()
-      proName = this.titleValue === '' ? proName : this.titleValue
-      this.titleChange = false
-    },
-    //创建一个项目
-    createPro(proName) {
-        this.dialogVisible = false
-        let temp = {
-            id: -1,
-            name: this.proName || '新问卷',
-            description: '新问卷',
-            welcomeUrl: '',
-            closingUrl: ''
-        };
-        this.$axios.post('survey/create', temp).then((res) => {
-            if(res.data.code == 'ok') {
+            this.$axios.post('survey/create', temp).then(res => {
+                if (res.data.code == 'ok') {
                 this.projects.unshift(res.data.results[0])
-            }else{
+                } else {
                 this.$notify.error({
                     title: '错误',
                     message: '创建项目失败！'
-                });
-            }
-        })
-    },
-    //触发删除项目弹出框
-    triDelProDialog(id, index) {
-      this.delProDialog = true
-      this.curProject = this.projects[index] //当前项目
-    },
-    //删除一个项目
-    delProject(proId) {
-        this.$axios.post('survey/delete?id=' + proId, null).then((res) => {
-            if(res.data.code == 'ok') {
+                })
+                }
+            })
+        },
+        //触发删除项目弹出框
+        triDelProDialog(id, index) {
+            this.delProDialog = true
+            this.curProject = this.projects[index] //当前项目
+        },
+        //删除一个项目
+        delProject(proId) {
+            this.$axios.post('survey/delete?id=' + proId, null).then(res => {
+                if (res.data.code == 'ok') {
                 for (let i = 0; i, this.projects.length; i++) {
                     if (this.projects[i].id == proId) {
-                        this.projects.splice(i, 1)
-                        this.delProDialog = false
-                        this.$notify({
-                            title: '成功',
-                            message: '删除成功！',
-                            type: 'success'
-                        });
-                        return
+                    this.projects.splice(i, 1)
+                    this.delProDialog = false
+                    this.$notify({
+                        title: '成功',
+                        message: '删除成功！',
+                        type: 'success'
+                    })
+                    return
                     }
                 }
-            }else{
+                } else {
                 this.$notify.error({
                     title: '错误',
                     message: '删除失败！'
-                });
-            }
-        })
+                })
+                }
+            })
+        }
+    },
+    components: {
+        editDiv
     }
-  },
-  components: {}
 }
 </script>
 <style lang="stylus" rel="stylesheet/stylus">
 @import '../common/stylus/base.styl';
 @import '../common/stylus/mixin.styl';
-
+$editColor = #FDF9CD;
+$proItemBg = #F7F7F7;
 .top {
     border-bottom: 1px solid #CCC;
     height: 68px;
     width: 100%;
     padding: 16px 24px 0;
     box-sizing: border-box;
+
     .top-left {
         float: left;
+
         i.icon-open-folder {
             font-size: 20px;
             margin-right: 6px;
         }
+
         span {
             padding: 5px 8px;
             display: inline-block;
@@ -567,8 +581,10 @@ export default {
             }
         }
     }
+
     .top-right {
         float: right;
+
         i.icon-plus {
             font-size: 12px;
             margin-right: 8px;
@@ -579,10 +595,12 @@ export default {
 .menu {
     padding: 24px 24px 0;
     margin-bottom: 32px;
+
     .title {
         font-size: 19px;
         color: #a5a5a5;
     }
+
     .menu-right {
         float: right;
 
@@ -631,9 +649,11 @@ export default {
         font-size: 12px;
         color: #04b26e;
     }
-    .sort-text{
+
+    .sort-text {
         margin-bottom: 10px;
     }
+
     .project-list-item {
         width: 100%;
         height: 100px;
@@ -648,8 +668,11 @@ export default {
         cursor: pointer;
 
         &:hover {
-            background-color: #f7f7f7;
+            background-color: $proItemBg;
             transition: background-color 0.2s;
+            .input-base{
+                background-color: $editColor;
+            }
         }
 
         .project-bar-star {
@@ -669,10 +692,9 @@ export default {
         }
 
         .project-name-container {
-            height: 20px;
+            height: 30px;
             margin: 0 0 0 44px;
             position: relative;
-
             .project-name {
                 color: #333;
                 display: block;
@@ -680,13 +702,12 @@ export default {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                padding: 6px 2px;
+                margin-bottom: 6px;
             }
-
-            .project-name-input {
-                position: absolute;
-                top: -22px;
-                left: -5px;
-                display: none;
+            .input-base {
+                padding: 3px 6px;
+                border-radius: 3px;
             }
         }
 
@@ -698,6 +719,7 @@ export default {
             text-overflow: ellipsis;
             white-space: nowrap;
             height: 15px;
+            margin-left: 48px;
         }
 
         .widget-container {
@@ -706,6 +728,7 @@ export default {
             position: relative;
             text-align: center;
             float: left;
+
             h3 {
                 color: #999;
                 font-weight: 300;
@@ -713,21 +736,25 @@ export default {
                 position: relative;
                 font-size: 12px;
             }
+
             .status.edit {
                 background: 0 0;
                 border-color: #599d97;
                 color: #599d97;
             }
+
             .status.published {
                 background: #599d97;
                 color: #fff;
             }
+
             .basic-count-widget {
                 span {
                     color: #6699bd;
                     display: block;
                     font-size: 42px;
                 }
+
                 .language {
                     color: #a5a5a5;
                     font-size: 16px;
@@ -736,7 +763,7 @@ export default {
         }
 
         .actions-menu-button {
-            background-color: #f7f7f7;
+            background-color: $proItemBg;
             border: none;
             border-left: 1px solid #e6e6e6;
             cursor: pointer;
@@ -779,7 +806,8 @@ export default {
     .project-right {
         width: 600px;
         position: relative;
-        .project-right-content{
+
+        .project-right-content {
             height: 60px;
             position: absolute;
             top: 50%;
@@ -796,12 +824,6 @@ export default {
     .icon-star {
         color: #a5a5a5;
         padding: 0 6px;
-    }
-
-    .project-type-icon {
-        display: inline-block;
-        float: none;
-        margin-right: 0;
     }
 
     .icon-arrow-box {
@@ -914,6 +936,7 @@ export default {
         margin-top: 12px;
     }
 }
+
 /* 删除项目弹出框 */
 .dele-project-container {
     h3, h2 {
@@ -929,9 +952,11 @@ export default {
 .copy-project-container {
     .form-control {
         margin: 16px 0;
+
         p {
             margin-bottom: 8px;
         }
+
         button {
             margin: 0;
         }
@@ -961,16 +986,19 @@ export default {
     color: #aaa;
     margin-bottom: 20px;
 }
-.flex-box{
+
+.flex-box {
     display: flex;
 }
-.flex-column{
+
+.flex-column {
     height: 100%;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
 }
-.flex-item{
+
+.flex-item {
     flex: 1;
 }
 </style>
