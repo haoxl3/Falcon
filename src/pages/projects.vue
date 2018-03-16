@@ -156,7 +156,8 @@
                         </el-table-column>
                         <el-table-column label="项目名称" sortable>
                             <template slot-scope="scope">
-                                <span>{{scope.row.name}}</span>
+                                <!-- <span>{{scope.row.name}}</span> -->
+                                <input class="input-base" @focus="reProNameFocus" @blur="reProNameBlur(scope.row, scope.row.name)" @keyup.enter="reProNameKeyDown(scope.row, scope.row.name)" v-model="scope.row.name" placeholder="请输入内容"></input>
                                 <!-- <el-input ref="titleInput" :placeholder="scope.row.name" size="small" @blur="reProNameBlur(scope.row.name)"></el-input> -->
                             </template>
                         </el-table-column>
@@ -427,10 +428,11 @@ export default {
         displayType(index) {
             this.isActive = index
         },
+        //创建项目的各类tab切换效果
         menuSelect(index) {
             this.liIndex = index
         },
-        //
+        //分页
         handleCurrentChange(val) {
             this.cur_page = val
             this._searchSurvey()
@@ -704,10 +706,6 @@ $proItemBg = #F7F7F7;
                 white-space: nowrap;
                 padding: 6px 2px;
                 margin-bottom: 6px;
-            }
-            .input-base {
-                padding: 3px 6px;
-                border-radius: 3px;
             }
         }
 
@@ -987,18 +985,13 @@ $proItemBg = #F7F7F7;
     margin-bottom: 20px;
 }
 
-.flex-box {
-    display: flex;
+.input-base {
+    padding: 3px 6px;
+    border-radius: 3px;
 }
-
-.flex-column {
-    height: 100%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.flex-item {
-    flex: 1;
+tr:hover{
+    .input-base{
+        background-color: $editColor;
+    }
 }
 </style>
