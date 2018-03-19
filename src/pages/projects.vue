@@ -46,7 +46,7 @@
                         <div class="project-bar-section project-bar-star project-left">
                             <i class="icon iconfont icon-star" :class="item.state == 0 ? '': 'icon-star-active' "></i>
                         </div>
-                        <div class="project-bar-section project-description project-middle" @click="$router.push({name:'editSurvey',params:{id:item.id}})">
+                        <div class="project-bar-section project-description project-middle" @click="$router.push({path:'survey',query:{id:item.id}})">
                             <div class="middle-box">
                                 <div class="project-type-icon survey">
                                     <i class="icon iconfont icon-survey"></i>
@@ -57,7 +57,7 @@
                                 <div class="project-info">上次修改时间：{{item.updatedAt}}</div>
                             </div>
                         </div>
-                        <div class="project-right" @click="$router.push({name:'editSurvey',params:{id:index}})">
+                        <div class="project-right" @click="$router.push({path:'survey',query:{id:item.id}})">
                             <div class="project-right-content">
                                 <div class="widget-container">
                                     <div class="flex-box flex-column">
