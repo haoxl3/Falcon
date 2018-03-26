@@ -1,11 +1,12 @@
 <template>
     <div>
         <ul>
-            <li><router-link :to="{path:'survey', query: {id: pid}}">调研</router-link></li>
-            <li><router-link :to="{path:'distribution', query: {id: pid}}">发布</router-link></li>
-            <li><router-link :to="{path:'analysis', query: {id: pid}}">数据分析</router-link></li>
-            <li><router-link :to="{path:'report', query: {id: pid}}">报表</router-link></li>
+            <li><router-link :to="{path:'survey'}">调研</router-link></li>
+            <li><router-link :to="{path:'distribution'}">发布</router-link></li>
+            <li><router-link :to="{path:'analysis'}">数据分析</router-link></li>
+            <li><router-link :to="{path:'report'}">报表</router-link></li>
         </ul>
+        <p>{{pid}}</p>
         <keep-alive>
             <router-view></router-view>
         </keep-alive>
@@ -15,7 +16,7 @@
 export default{
     data() {
         return {
-            pid: this.$router.query.id
+           pid: this.$route.query.id 
         }
     }
 }
