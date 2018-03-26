@@ -129,6 +129,7 @@ export default{
     }
     .survey-right-box{
         float: right;
+        margin-top: -4px;
         .preview i{
             margin-right: 4px;
         }
