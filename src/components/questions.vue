@@ -68,6 +68,10 @@
                         <div class="option" v-for="(option,index) in question.options"  v-if="question.type == 1" :key="index">
                             <el-input v-model="singleText" placeholder="单行填空" v-if="question.subType == 1"></el-input>
                         </div>
+                        <!--星星打分题-->
+                        <div class="option" v-if="question.type == 4 && question.subType == 11" v-for="(option, index) in question.options" :key="index">
+                            <el-rate v-model="starVal" show-text></el-rate>
+                        </div>
                     </div>  
                 </div>  
                 <div class="question-btn">
@@ -92,8 +96,9 @@ export default {
     },
     data() {
         return {
-            singleText: '',
+            singleText: '',//单选题的值
             bgColor: 'trasparent',
+            starVal: 0//打分题的值
         }
     },
     methods: {
@@ -203,6 +208,7 @@ export default {
                 input{
                     display: table-cell;
                     width: 20px;
+                    vertical-align: middle;
                 }
                 .option-text{
                     padding: 6px 6px;

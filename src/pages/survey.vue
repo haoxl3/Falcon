@@ -51,6 +51,100 @@
                             <div class="questions-block-container">
                                 <questions :questions="questions" :rubbish="rubbish" @cq="createQuestion"></questions>
                             </div>
+                            <div class="footer-block-container">
+                                <el-button @click="queLibrary=true"><i class="icon iconfont icon-iconfontcopy"></i>从题库中导入</el-button>
+                                <el-button type="success" icon="plus" class="create-question" @click="createQuestion">创建一个题目</el-button>
+                                <el-popover ref="otherQuestion" placement="bottom" width="600" trigger="click" popper-class="other-question-popover">
+                                    <div class="other-row">
+                                        <div class="other-list question-type-summary">静态题目</div>
+                                        <ul class="other-list">
+                                            <li @click="createQuestion('des-question')"><i class="icon iconfont icon-font"></i>描述题</li>
+                                        </ul>
+                                        <ul class="other-list">
+                                            <li @click="createQuestion('img-question')"><i class="icon iconfont icon-img"></i>图片题</li>
+                                        </ul>
+                                    </div>
+                                    <div class="other-row">
+                                        <div class="other-list question-type-summary">标准题目</div>
+                                        <ul class="other-list">
+                                            <el-dropdown trigger="click" @command="createQuestion">
+                                                <li>
+                                                    <span><i class="icon iconfont icon-radio"></i>单选题</span>
+                                                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                                                </li>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="radio-vertical">选项垂直排列</el-dropdown-item>
+                                                    <el-dropdown-item command="radio-horizontal">选项水平排列</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                            <el-dropdown trigger="click" @command="createQuestion">
+                                                <li>
+                                                    <span><i class="icon iconfont icon-multiple"></i>多选题</span>
+                                                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                                                </li>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="checkbox-vertical">选项垂直排列</el-dropdown-item>
+                                                    <el-dropdown-item command="checkbox-horizontal">选项水平排列</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                            <el-dropdown trigger="click" @command="createQuestion">
+                                                <li>
+                                                    <span><i class="icon iconfont icon-text-entry"></i>填空题</span>
+                                                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                                                </li>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="fill-single">单行填空</el-dropdown-item>
+                                                    <el-dropdown-item command="fill-multiple">多行填空</el-dropdown-item>
+                                                    <el-dropdown-item command="fill-multiterm">多项填空</el-dropdown-item>
+                                                    <el-dropdown-item command="fill-password">密码框</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                            <el-dropdown trigger="click" @command="createQuestion">
+                                                <li>
+                                                    <span><i class="icon iconfont icon-rank"></i>排序题</span>
+                                                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                                                </li>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="rank-question">排序题</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                        </ul>
+                                        <div class="other-list">
+                                            <el-dropdown trigger="click" @command="createQuestion">
+                                                <li>
+                                                    <span><i class="icon iconfont icon-matrix"></i>矩阵题</span>
+                                                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                                                </li>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="matrix-radio">矩阵单选题</el-dropdown-item>
+                                                    <el-dropdown-item command="matrix-checkbox">矩阵多选题</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                            <el-dropdown trigger="click" @command="createQuestion">
+                                                <li>
+                                                    <span><i class="icon iconfont icon-score"></i>打分题</span>
+                                                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                                                </li>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="star-score">星星打分题</el-dropdown-item>
+                                                    <el-dropdown-item command="slider-score">滑块打分题</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                            <el-dropdown trigger="click" @command="createQuestion">
+                                                <li>
+                                                    <span><i class="icon iconfont icon-select"></i>下拉列表题</span>
+                                                    <i class="el-icon-caret-bottom el-icon--right"></i>
+                                                </li>
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="select-radio">单选下拉列表题</el-dropdown-item>
+                                                    <el-dropdown-item command="select-checkbox">多选下拉列表题</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
+                                        </div>
+                                    </div>
+                                </el-popover>
+                                <el-button v-popover:otherQuestion type="success" class="create-question-right"><i class="icon iconfont icon-arrow-down"></i></el-button>
+                            </div>
                         </div>
                     </div>
                     <div class="add-block">Add Block</div>  
@@ -61,6 +155,8 @@
 </template>
 <script>
 import questions from '@/components/questions'
+import {OBJECT_TYPE_SINGLE} from '@/common/js/object'
+
 export default{
     data() {
         return {
@@ -90,7 +186,18 @@ export default{
             console.log(document.body.scrollTop)
         },
         createQuestion() {
-            console.log('create question')
+            let question = Object.assign({}, OBJECT_TYPE_SINGLE)
+            this._createQuestion(question,()=> {
+
+            })
+        },
+        _createQuestion(question) {
+            this.$axios.post('question/create', question).then(res => {
+                if (res.data.code == 'ok') {
+                    console.log('创建的新题目')
+                    console.log(res.data)
+                }
+            })
         }
     },
     components: {
