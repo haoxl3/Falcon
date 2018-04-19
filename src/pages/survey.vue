@@ -49,7 +49,7 @@
                         </div>
                         <div v-if="isShowBlock">
                             <div class="questions-block-container">
-                                <questions :questions="questions" :rubbish="rubbish" @cq="createQuestion"></questions>
+                                <questions :questions="questions" :rubbish="rubbish"></questions>
                             </div>
                             <div class="footer-block-container">
                                 <el-button @click="queLibrary=true"><i class="icon iconfont icon-iconfontcopy"></i>从题库中导入</el-button>
@@ -155,7 +155,8 @@
 </template>
 <script>
 import questions from '@/components/questions'
-import {OBJECT_TYPE_SINGLE} from '@/common/js/object'
+import {OBJECT_MAP} from '@/common/js/object'
+const QuestionNumberPrefix = 'Q'
 
 export default{
     data() {
@@ -185,17 +186,29 @@ export default{
             console.log('surveywheel...')
             console.log(document.body.scrollTop)
         },
-        createQuestion() {
-            let question = Object.assign({}, OBJECT_TYPE_SINGLE)
-            this._createQuestion(question,()=> {
-
-            })
+        createQuestion(qtype='2-1') {
+            console.log('type=')
+            console.log(qtype)
+            console.log(OBJECT_MAP.qtype)
+            console.log(OBJECT_MAP[qtype])
+            // let question = Object.assign({}, OBJECT_MAP['2-1'], {
+            //     surveyId: this.$route.query.id,
+            //     displayIndex: this.questions.length + 1,
+            //     number: QuestionNumberPrefix + (this.questions.length + 1)
+            // })
+            // this._createQuestion(question,(data)=> {
+            //     this.questions.push(data)
+            // })
         },
-        _createQuestion(question) {
+        _createQuestion(question, callback) {
             this.$axios.post('question/create', question).then(res => {
                 if (res.data.code == 'ok') {
-                    console.log('创建的新题目')
-                    console.log(res.data)
+                    if(callback) callback(res.data.results[0])
+                }else{
+                    this.$notify.error({
+                        title: '错误',
+                        message: '创建失败！'
+                    })
                 }
             })
         }

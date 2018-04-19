@@ -1,7 +1,17 @@
-const QUESTION_TYPE_SINGLE = 1
+const QUESTION_TYPE_SINGLE = 2
 const QUESTION_SUBTYPE_SINGLE = 1
 
-export const OBJECT_TYPE_SINGLE = {
+const OBJECT_TYPE_BLANK_TEXT = '1-1'
+const OBJECT_TYPE_BLANK_NAME = '1-2'
+const OBJECT_TYPE_BLANK_PHONENUMBER = '1-3'
+const OBJECT_TYPE_BLANK_EMAIL = '1-4'
+const OBJECT_TYPE_SINGLE = '2-1'
+const OBJECT_TYPE_MULTIPLE = '3-1'
+const OBJECT_TYPE_SCORE = '4-11'
+
+let OBJECT_MAP = {}
+
+OBJECT_MAP[OBJECT_TYPE_SINGLE] = {
     id: -1,
     surveyId: -1,
     type: QUESTION_TYPE_SINGLE,
@@ -41,3 +51,4 @@ export const OBJECT_TYPE_SINGLE = {
         }
     ]
 }
+export {OBJECT_MAP}

@@ -105,8 +105,17 @@ export default {
         curQuestion() {
 
         },
-        delQuestion() {
-
+        delQuestion(qid) {
+            this.$axios.post('question/delete?id=' + qid).then(res => {
+                if (res.data.code == 'ok') {
+                    for(let i=0;i<this.questions.length;i++){
+                        if (this.questions[i].id == qid){
+                            // this.rubbish.push(this.questions[i]);//保存已删除的题目
+                            this.questions.splice(i,1);
+                        }
+                    }
+                }
+            })
         },
         toMove() {
 

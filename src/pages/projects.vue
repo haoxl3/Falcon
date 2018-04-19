@@ -511,10 +511,10 @@ export default {
                     }
                 }
                 } else {
-                this.$notify.error({
-                    title: '错误',
-                    message: '删除失败！'
-                })
+                    this.$notify.error({
+                        title: '错误',
+                        message: '删除失败！'
+                    })
                 }
             })
         }
