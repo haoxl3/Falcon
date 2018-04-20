@@ -8,7 +8,7 @@
         </ul>
         <p>{{pid}}</p>
         <keep-alive>
-            <router-view></router-view>
+            <router-view></router-view><!-- :key="$route.fullpath" -->
         </keep-alive>
     </div>
 </template>

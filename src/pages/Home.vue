@@ -27,7 +27,7 @@
       </ul>
     </header>
     <keep-alive>
-      <router-view></router-view>
+      <router-view></router-view><!-- :key="$route.fullpath" -->
     </keep-alive>
     <!--帮助弹出框-->
     <el-dialog title="Help & Feedback" :visible.sync="helpDialog" size="small">
